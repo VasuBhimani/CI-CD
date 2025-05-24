@@ -1,0 +1,40 @@
+name: CI/CD: Build Flask Docker & Deploy behind Nginx
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }} .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SERVER_SSH }}
+          
+# StrictHostKeyChecking=no : means Don't ask me to confirm the server's identity when I connect it mean
+# I trust this server don’t stop to ask me if I’m sure
+
+      - name: Deploy to server with Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+            docker stop flask-cicd || true
+            docker rm flask-cicd || true
+            docker run -d --name flask-cicd -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+          EOF
