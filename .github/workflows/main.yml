@@ -34,8 +34,8 @@ jobs:
       - name: Deploy to server with Nginx
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
-            docker stop flask-cicd || true
-            docker rm flask-cicd || true
-            docker run -d --name flask-cicd -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+            sudo docker stop flask-cicd || true
+            sudo docker rm flask-cicd || true
+            sudo docker run -d --name flask-cicd -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
           EOF
