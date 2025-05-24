@@ -1,9 +1,9 @@
-name: CI/CD: Build Flask Docker & Deploy behind Nginx
+name: "CI/CD - Build Flask Docker and Deploy behind Nginx"
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-push-deploy:
@@ -23,18 +23,19 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
 
       - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.9.1
+
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH }}
-          
-# StrictHostKeyChecking=no : means Don't ask me to confirm the server's identity when I connect it mean
-# I trust this server don’t stop to ask me if I’m sure
+
+      # StrictHostKeyChecking=no : means Don't ask me to confirm the server's identity when I connect it mean
+      # I trust this server don’t stop to ask me if I’m sure
 
       - name: Deploy to server with Nginx
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
-            docker stop flask-cicd || true
-            docker rm flask-cicd || true
-            docker run -d --name flask-cicd -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
+            sudo docker stop flask-cicd || true
+            sudo docker rm flask-cicd || true
+            sudo docker run -d --name flask-cicd -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-cicd:${{ github.sha }}
           EOF
