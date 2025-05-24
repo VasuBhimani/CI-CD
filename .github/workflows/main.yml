@@ -3,7 +3,7 @@ name: "CI/CD - Build Flask Docker and Deploy behind Nginx"
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-push-deploy:
