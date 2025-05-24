@@ -1,4 +1,4 @@
-name: CI/CD: Build Flask Docker and Deploy behind Nginx
+name: "CI/CD - Build Flask Docker and Deploy behind Nginx"
 
 on:
   push:
