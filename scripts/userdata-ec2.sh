@@ -21,3 +21,15 @@ sudo ln -s /etc/nginx/sites-available/flask /etc/nginx/sites-enabled/flask && \
 sudo rm -f /etc/nginx/sites-enabled/default && \
 sudo nginx -t && \
 sudo systemctl reload nginx
+
+# installing docker on machine 
+
+# Install dependencies from docker website for ubuntu 
+apt install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io
+
+systemctl start docker
+systemctl enable docker
